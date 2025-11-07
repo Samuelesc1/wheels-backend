@@ -1,45 +1,47 @@
-let trips = []; // arreglo temporal donde se guardan los viajes
+import Trip from "../models/Trip.model.js";
 
-//  Obtener todos los viajes
-export const getTrips = (req, res) => {
-  res.json(trips);
+export const getTrips = async (req, res) => {
+  try {
+    const trips = await Trip.find().lean();
+    return res.json(trips);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error en servidor" });
+  }
 };
 
-//  Crear un nuevo viaje
-export const createTrip = (req, res) => {
-  const { inicio, destino, hora, cupos, tarifa, conductor } = req.body;
+export const createTrip = async (req, res) => {
+  try {
+    const { inicio, destino, ruta, hora, cupos, tarifa, conductor } = req.body;
+    if (!inicio || !destino || !hora || !cupos || !conductor) {
+      return res.status(400).json({ message: "Datos incompletos del viaje" });
+    }
 
-  if (!inicio || !destino || !hora || !cupos || !tarifa || !conductor) {
-    return res.status(400).json({ message: "❌ Datos del viaje incompletos" });
+    const newTrip = await Trip.create({
+      inicio, destino, ruta, hora, cupos: Number(cupos), tarifa: Number(tarifa) || 6000, conductor
+    });
+
+    return res.status(201).json({ message: "Viaje creado", trip: newTrip });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error en servidor" });
   }
-
-  const newTrip = {
-    id: trips.length + 1,
-    inicio,
-    destino,
-    hora,
-    cupos,
-    tarifa,
-    conductor,
-    estado: "disponible"
-  };
-
-  trips.push(newTrip);
-  res.status(201).json({ message: "✅ Viaje creado correctamente", trip: newTrip });
 };
 
-// ✅ Actualizar cupos de un viaje
-export const updateTrip = (req, res) => {
-  const id = parseInt(req.params.id);
-  const { cupos } = req.body;
+export const updateTrip = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { cupos } = req.body;
+    const trip = await Trip.findById(id);
+    if (!trip) return res.status(404).json({ message: "Viaje no encontrado" });
 
-  const trip = trips.find(t => t.id === id);
-  if (!trip) {
-    return res.status(404).json({ message: "❌ Viaje no encontrado" });
+    trip.cupos = Number(cupos);
+    if (trip.cupos <= 0) trip.estado = "lleno";
+    await trip.save();
+
+    return res.json({ message: "Viaje actualizado", trip });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error en servidor" });
   }
-
-  trip.cupos = cupos;
-  if (trip.cupos <= 0) trip.estado = "lleno";
-
-  res.json({ message: "✅ Viaje actualizado correctamente", trip });
 };
