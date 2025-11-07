@@ -1,7 +1,6 @@
-import { Router } from "express";
 import Trip from "../models/Trip.model.js";
-
-const router = router();
+import express from "express";
+const router = express.Router();
 
 // Obtener todos los viajes
 router.get("/", async (req, res) => {

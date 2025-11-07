@@ -1,4 +1,4 @@
-export function CreateUser(body) {
+export function CreateUserDTO(body) {
   // filtra y devuelve solo los campos permitidos del body
   return {
     nombre: body.nombre,
