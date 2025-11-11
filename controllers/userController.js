@@ -1,5 +1,3 @@
-import User from "../models/User.model.js";
-
 // Listar usuarios
 import User from "../models/User.model.js";
 
