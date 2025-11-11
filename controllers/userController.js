@@ -1,13 +1,16 @@
 import User from "../models/User.model.js";
 
 // Listar usuarios
-export const listUsers = async (req, res) => {
+import User from "../models/User.model.js";
+
+export const registerUser = async (req, res) => {
   try {
-    const users = await User.find().select("-password").lean();
-    return res.json(users);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Error en servidor" });
+    const user = new User(req.body);
+    await user.save();
+    res.status(201).json({ message: "Usuario registrado exitosamente" });
+  } catch (error) {
+    console.error("Error al registrar usuario:", error);
+    res.status(500).json({ message: "Error al registrar usuario" });
   }
 };
 
