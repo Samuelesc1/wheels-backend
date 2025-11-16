@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/users.routes.js";
 import tripRoutes from "./routes/trips.routes.js";
+import bookingRoutes from "./routes/bookings.routes.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/trips", tripRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // Ruta raíz
 app.get("/", (req, res) => res.send("🚗 API Wheels (JS) funcionando"));

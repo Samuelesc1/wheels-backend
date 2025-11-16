@@ -1,25 +1,24 @@
-import Trip from "../models/Trip.model.js";
 import express from "express";
+import { 
+  getTrips, 
+  getTripById, 
+  createTrip, 
+  getMyTrips, 
+  updateTrip, 
+  cancelTrip 
+} from "../controllers/tripController.js";
+import { authenticate, requireRole } from "../middleware/auth.middleware.js";
+
 const router = express.Router();
 
-// Obtener todos los viajes
-router.get("/", async (req, res) => {
-  try {
-    const viajes = await Trip.find();
-    res.json(viajes);
-  } catch (err) {
-    res.status(500).json({ error: "Error obteniendo viajes" });
-  }
-});
+// Rutas públicas
+router.get("/", getTrips); // Con filtros en query params
+router.get("/:id", getTripById);
 
-// Crear viaje
-router.post("/", async (req, res) => {
-  try {
-    const nuevoViaje = new Trip(req.body);
-    await nuevoViaje.save();
-    res.json(nuevoViaje);
-  } catch (err) {
-    res.status(400).json({ error: "Error creando viaje" });
-  }
-});
+// Rutas protegidas
+router.post("/", authenticate, requireRole("conductor"), createTrip);
+router.get("/my/trips", authenticate, requireRole("conductor"), getMyTrips);
+router.put("/:id", authenticate, requireRole("conductor"), updateTrip);
+router.delete("/:id", authenticate, requireRole("conductor"), cancelTrip);
+
 export default router;

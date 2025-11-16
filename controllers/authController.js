@@ -32,6 +32,21 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Usuario ya registrado" });
     }
 
+    // Validar que si es conductor, tenga todos los datos del vehículo
+    if (rol === "conductor") {
+      if (!placaVehiculo || !marca || !modelo || !capacidadVehiculo) {
+        return res.status(400).json({ 
+          message: "Los conductores deben proporcionar: placa, marca, modelo y capacidad del vehículo" 
+        });
+      }
+
+      // Validar que la placa no esté ya registrada (un conductor = un vehículo)
+      const existingDriver = await User.findOne({ placaVehiculo });
+      if (existingDriver) {
+        return res.status(400).json({ message: "Esta placa ya está registrada por otro conductor" });
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
@@ -43,12 +58,12 @@ export const register = async (req, res) => {
       password: hashedPassword,
       rol,
       foto,
-      placaVehiculo,
-      fotoVehiculo,
-      capacidadVehiculo,
-      fotoSOAT,
-      marca,
-      modelo
+      placaVehiculo: rol === "conductor" ? placaVehiculo : undefined,
+      fotoVehiculo: rol === "conductor" ? fotoVehiculo : undefined,
+      capacidadVehiculo: rol === "conductor" ? Number(capacidadVehiculo) : undefined,
+      fotoSOAT: rol === "conductor" ? fotoSOAT : undefined,
+      marca: rol === "conductor" ? marca : undefined,
+      modelo: rol === "conductor" ? modelo : undefined
     });
 
     const { password: _, ...safeUser } = newUser.toObject();
