@@ -10,10 +10,13 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://stalwart-quokka-02adde.netlify.app"
-  ],
+origin: [
+  "http://localhost:3000",
+  "https://stalwart-quokka-02adde.netlify.app",
+  "https://wheels-frontend.netlify.app",
+  /\.netlify\.app$/    
+],
+
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
